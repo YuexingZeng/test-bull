@@ -1,0 +1,26 @@
+### Send POST request with json body
+POST http://localhost:3000/network
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "eth_mainnet",
+  "url": "www.mainnet.com"
+}
+
+### GET ALL
+GET http://localhost:3000/network
+
+### GET ONE
+GET http://localhost:3000/network/1
+
+### UPDATE
+PATCH http://localhost:3000/network/1
+Content-Type: application/json
+
+{
+  "name": "mainnet"
+}
+
+### DELETE
+DELETE http://localhost:3000/network/1
