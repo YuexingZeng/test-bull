@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { NetworkService } from './network.service';
-import { NetworkController } from './network.controller';
+import { BalanceService } from './balance.service';
+import { BalanceController } from './balance.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NetworkEntity } from '../entities/network.entity';
 import { BalanceEntity } from '../entities/balance.entity';
@@ -8,6 +8,8 @@ import { NftEntity } from '../entities/nft.entity';
 import { WalletEntity } from '../entities/wallet.entity';
 import { VoteRecordEntity } from '../entities/vote.entity';
 import { BaseEntity } from '../entities/base';
+import { NetworkModule } from '../network/network.module';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
   imports: [
@@ -19,9 +21,11 @@ import { BaseEntity } from '../entities/base';
       VoteRecordEntity,
       BaseEntity,
     ]),
+    NetworkModule,
+    WalletModule,
   ],
-  controllers: [NetworkController],
-  providers: [NetworkService],
-  exports: [NetworkService],
+  controllers: [BalanceController],
+  providers: [BalanceService],
+  exports: [BalanceService],
 })
-export class NetworkModule {}
+export class BalanceModule {}

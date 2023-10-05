@@ -3,16 +3,16 @@ POST http://localhost:3000/network
 Content-Type: application/json
 
 {
-  "id": 1,
-  "name": "eth_mainnet",
-  "url": "www.mainnet.com"
+  "id": 420,
+  "name": "optimism-goerli",
+  "url": "https://optimism-goerli.publicnode.com"
 }
 
 ### GET ALL
 GET http://localhost:3000/network
 
 ### GET ONE
-GET http://localhost:3000/network/1
+GET http://localhost:3000/network/420
 
 ### UPDATE
 PATCH http://localhost:3000/network/1
@@ -23,4 +23,4 @@ Content-Type: application/json
 }
 
 ### DELETE
-DELETE http://localhost:3000/network/1
+DELETE http://localhost:3000/network/420

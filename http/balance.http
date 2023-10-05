@@ -1,0 +1,18 @@
+### Send POST request with json body
+POST http://localhost:3000/balance
+Content-Type: application/json
+
+{
+  "networkId": 420,
+  "walletAddress": "0xA0d30512bde1640ac419cca586eA20757687bd18"
+}
+
+### DELETE
+DELETE http://localhost:3000/balance/1
+
+### UPDATE
+PATCH http://localhost:3000/balance/1
+Content-Type: application/json
+
+### GET ONE
+GET http://localhost:3000/balance/1

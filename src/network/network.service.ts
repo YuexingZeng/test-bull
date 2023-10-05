@@ -13,8 +13,11 @@ export class NetworkService {
   ) {}
 
   async create(createNetworkDto: CreateNetworkDto): Promise<NetworkEntity> {
-    const newNetwork = this.network.create(createNetworkDto);
-    return await this.network.save(newNetwork);
+    const networkEntity = new NetworkEntity();
+    networkEntity.id = createNetworkDto.id;
+    networkEntity.name = createNetworkDto.name;
+    networkEntity.url = createNetworkDto.url;
+    return await this.network.save(networkEntity);
   }
 
   async findAll(): Promise<NetworkEntity[]> {
@@ -26,6 +29,7 @@ export class NetworkService {
       where: {
         id: Like(id),
       },
+      relations: ['wallets', 'nfts', 'voteRecords'],
     });
     if (!network) {
       throw new NotFoundException(`Network with id ${id} not found`);

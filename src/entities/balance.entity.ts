@@ -14,7 +14,7 @@ export class BalanceEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'decimal', precision: 9, scale: 2, default: 0 })
+  @Column({ type: 'decimal', precision: 20, scale: 10, default: 0 })
   balance: number;
 
   @ManyToOne(() => NetworkEntity, (network) => network.wallets, {

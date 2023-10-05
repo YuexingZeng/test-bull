@@ -1,0 +1,17 @@
+### Send POST request with json body
+POST http://localhost:3000/wallet/create
+Content-Type: application/json
+
+{
+  "groupNumber": 1,
+  "childWalletAmount": 1
+}
+
+### DELETE by privateKey
+DELETE http://localhost:3000/wallet/0x8049949c8385f9c3fb05bbe3da7aad6f7d9ac07823eed79365302e1157ffdf77
+
+### GET ALL
+GET http://localhost:3000/wallet
+
+### GET ONE
+GET http://localhost:3000/wallet/0xf6E93b419A6Ad37A558e4873990b4f80ba66a65E

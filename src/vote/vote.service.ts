@@ -1,26 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { CreateVoteDto } from './dto/create-vote.dto';
-import { UpdateVoteDto } from './dto/update-vote.dto';
+import { Contract, ethers, JsonRpcProvider } from 'ethers';
+import { NetworkService } from '../network/network.service';
+import * as ABI from './contract/abi.json';
+import { VoteDto } from './dto/vote.dto';
 
 @Injectable()
 export class VoteService {
-  create(createVoteDto: CreateVoteDto) {
-    return 'This action adds a new vote';
+  constructor(private readonly networkService: NetworkService) {}
+
+  async vote(voteDto: VoteDto) {
+    const contractInstance = await this.getVoteContract();
+    return await contractInstance.vote(
+      voteDto.proposal,
+      voteDto.votee,
+      voteDto.tokens,
+    );
   }
 
-  findAll() {
-    return `This action returns all vote`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} vote`;
-  }
-
-  update(id: number, updateVoteDto: UpdateVoteDto) {
-    return `This action updates a #${id} vote`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} vote`;
+  async getVoteContract(): Promise<Contract> {
+    const privateKey = process.env.privateKey;
+    const chainId = process.env.chainId;
+    const voteContractAddress = process.env.voteContractAddress;
+    const networkEntity = await this.networkService.findOne(+chainId);
+    const provider = new JsonRpcProvider(networkEntity.url);
+    const signer = new ethers.Wallet(privateKey, provider);
+    return new ethers.Contract(voteContractAddress, ABI, signer);
   }
 }
