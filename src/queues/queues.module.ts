@@ -13,16 +13,31 @@ import { VoteRecordEntity } from '../entities/vote.entity';
 import { QueuesService } from './queues.service';
 import { WalletModule } from '../wallet/wallet.module';
 import { NetworkModule } from '../network/network.module';
+import { nftQueueProcessor } from './processors/nftQueue.processor';
+import { NftModule } from '../nft/nft.module';
+import { VoteModule } from '../vote/vote.module';
+import { voteQueueProcessor } from './processors/voteQueue.processor';
 
 @Module({
   imports: [
-    BullModule.registerQueue({
-      name: 'balanceQueue',
-    }),
-    BullBoardModule.forFeature({
-      name: 'balanceQueue',
-      adapter: BullAdapter,
-    }),
+    BullModule.registerQueue(
+      {
+        name: 'nftQueue',
+      },
+      {
+        name: 'voteQueue',
+      },
+    ),
+    BullBoardModule.forFeature(
+      {
+        name: 'nftQueue',
+        adapter: BullAdapter,
+      },
+      {
+        name: 'voteQueue',
+        adapter: BullAdapter,
+      },
+    ),
     TypeOrmModule.forFeature([
       BaseEntity,
       BalanceEntity,
@@ -33,8 +48,10 @@ import { NetworkModule } from '../network/network.module';
     ]),
     WalletModule,
     NetworkModule,
+    NftModule,
+    VoteModule,
   ],
   controllers: [QueuesController],
-  providers: [QueuesService],
+  providers: [QueuesService, nftQueueProcessor, voteQueueProcessor],
 })
 export class QueuesModule {}

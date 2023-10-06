@@ -14,6 +14,7 @@ import { NftModule } from './nft/nft.module';
 import { VoteModule } from './vote/vote.module';
 import { BalanceModule } from './balance/balance.module';
 import mysqlConfig from './config/mysql.config';
+import { QueuesModule } from './queues/queues.module';
 dotenv.config();
 
 @Module({
@@ -47,7 +48,7 @@ dotenv.config();
     WalletModule,
     NftModule,
     VoteModule,
-    // QueuesModule,
+    QueuesModule,
     BalanceModule,
   ],
   controllers: [],
