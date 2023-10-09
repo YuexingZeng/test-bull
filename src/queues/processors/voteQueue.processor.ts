@@ -64,9 +64,27 @@ export class voteQueueProcessor {
   @OnGlobalQueueCompleted()
   async onGlobalCompleted(jobId: number, result: any) {
     const job = await this.voteQueue.getJob(jobId);
+    if (typeof result === 'string') {
+      try {
+        result = JSON.parse(result);
+      } catch (error) {
+        console.error('Error parsing JSON string:', error);
+      }
+    }
     if (result.current < job.data.target) {
+      const privateKeys = removeElementFromArray(
+        job.data.privateKeys,
+        result.privateKey,
+      );
+      if (privateKeys.length == 0) {
+        console.log(
+          'All accounts have voted, but the expected number of votes has not been reached. Please adjust the parameters and resend the request.',
+        );
+        return;
+      }
       const delay = getRandomSeconds();
       await this.voteQueue.add(
+        'vote',
         {
           networkId: job.data.networkId,
           current: result.current,

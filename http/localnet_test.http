@@ -83,7 +83,7 @@ Content-Type: application/json
     "0xa3679728091163ae15498f9b7e2ad25414a789353e18c0535ef7327c1659f136",
     "0x41ab6dcc0da73a9910d2477ceff955c9bf447cc1b39cc673055ad1d6a4f05988"
   ],
-  "target": 8,
+  "target": 11,
   "proposalId": 1,
   "votee": 1
 }
