@@ -1,0 +1,82 @@
+### Send POST request with json body
+POST http://localhost:4000/network
+Content-Type: application/json
+
+{
+  "id": 31337,
+  "name": "localhost",
+  "url": "http://127.0.0.1:8545/"
+}
+
+### Send POST request with json body
+POST http://localhost:4000/wallet/create
+Content-Type: application/json
+
+{
+  "groupNumber": 1,
+  "childWalletAmount": 1
+}
+
+### Send POST request with json body
+POST http://localhost:4000/balance
+Content-Type: application/json
+
+{
+  "networkId": 31337,
+  "walletAddress": "0x3907e7712c30891dCe021E8078ecd4376d986F98"
+}
+
+### UPDATE
+PATCH http://localhost:4000/balance/2
+Content-Type: application/json
+
+### MINT
+POST http://localhost:4000/nft
+Content-Type: application/json
+
+{
+  "dropId": "0x075918893931a6ee4a33f3885b427f989a46160e",
+  "merkleQuantity": 50,
+  "quantity": 2,
+  "proof": [
+    "0x4158628a03676d0b7fabe27bcae45b56ae23f817ea293a8f4cfe62efacc38483"
+  ]
+}
+
+
+### GET ONE
+GET http://localhost:4000/network/31337
+
+### GET ONE
+GET http://localhost:4000/wallet/0x3907e7712c30891dCe021E8078ecd4376d986F98
+
+### VOTE
+POST http://localhost:4000/vote
+Content-Type: application/json
+
+{
+  "jobId": 1,
+  "proposal": 2,
+  "votee": 1,
+  "tokens": [6]
+}
+
+### VOTE
+POST http://localhost:4000/nft/update
+Content-Type: application/json
+
+{
+  "tokenId": 5,
+  "isVoted": true
+}
+
+### VOTE
+POST http://localhost:4000/queues/vote
+Content-Type: application/json
+
+{
+  "current": 0,
+  "target": 1,
+  "proposalId": 2,
+  "votee": 1
+}

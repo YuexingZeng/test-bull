@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { QueuesService } from './queues.service';
 import { MintNftDto } from '../nft/dto/mint-nft.dto';
-import { VoteDto } from '../vote/dto/vote.dto';
+import { VoteJobDto } from './dto/vote-job.dto';
 
 @Controller('queues')
 export class QueuesController {
@@ -13,7 +13,7 @@ export class QueuesController {
   }
 
   @Post('vote')
-  async vote(@Body() voteDto: VoteDto) {
-    return await this.queuesService.vote(voteDto);
+  async vote(@Body() voteJobDto: VoteJobDto) {
+    return await this.queuesService.vote(voteJobDto);
   }
 }

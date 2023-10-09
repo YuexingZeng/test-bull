@@ -15,7 +15,7 @@ export class VoteRecordEntity extends BaseEntity {
   id: number;
 
   @Column({ name: 'job_id' })
-  jobId: string;
+  jobId: number;
 
   @ManyToOne(() => NetworkEntity, (network) => network.voteRecords, {
     cascade: true,
@@ -35,6 +35,9 @@ export class VoteRecordEntity extends BaseEntity {
   @Column({ name: 'transaction_hash' })
   transactionHash: string;
 
-  @Column({ name: 'project_id' })
-  projectId: number;
+  @Column({ name: 'proposal_id' })
+  proposalId: number;
+
+  @Column({ name: 'votee' })
+  votee: number;
 }

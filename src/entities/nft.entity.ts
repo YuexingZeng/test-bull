@@ -20,6 +20,9 @@ export class NftEntity extends BaseEntity {
   @Column({ name: 'token_number' })
   tokenNumber: number;
 
+  @Column({ name: 'is_voted', default: false })
+  isVoted: boolean;
+
   @ManyToOne(() => NetworkEntity, (network) => network.nfts, {
     cascade: true,
   })

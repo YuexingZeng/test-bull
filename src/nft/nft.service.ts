@@ -1,32 +1,88 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { MintNftDto } from './dto/mint-nft.dto';
-import { Contract, ethers, JsonRpcProvider } from 'ethers';
+import { Contract, ethers, Wallet } from 'ethers';
 import * as ABI from './contract/abi.json';
 import { NetworkService } from '../network/network.service';
 import * as dotenv from 'dotenv';
+import { WalletService } from '../wallet/wallet.service';
+import { getTokensFromTx, getTxReceipt } from '../utils/common';
+import { NftEntity } from '../entities/nft.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Like, Repository } from 'typeorm';
 dotenv.config();
 
 @Injectable()
 export class NftService {
-  constructor(private readonly networkService: NetworkService) {}
+  constructor(
+    @InjectRepository(NftEntity)
+    private readonly nft: Repository<NftEntity>,
+    private readonly networkService: NetworkService,
+    private readonly walletService: WalletService,
+  ) {}
 
   async mint(mintNftDto: MintNftDto) {
-    const contractInstance = await this.getMintContract();
-    return await contractInstance.mint(
+    const { provider, signer } =
+      await this.networkService.getProviderAndSigner();
+    const contractInstance = await this.getMintContract(signer);
+    const txResult = await contractInstance.mint(
       mintNftDto.dropId,
       mintNftDto.merkleQuantity,
       mintNftDto.quantity,
       mintNftDto.proof,
     );
+    const response = await getTxReceipt(provider, txResult.hash);
+    const tokens = getTokensFromTx(response);
+    const nftEntitys = [];
+    for (const token of tokens) {
+      const walletEntity = await this.walletService.findOneByAddress(
+        signer.address,
+      );
+      const networkEntity = await this.networkService.findOne(
+        +process.env.chainId,
+      );
+      const nftEntity = new NftEntity();
+      nftEntity.name = process.env.tokenName;
+      nftEntity.tokenNumber = token;
+      nftEntity.ownerWallet = walletEntity;
+      nftEntity.network = networkEntity;
+      nftEntitys.push(await this.nft.save(nftEntity));
+    }
+    return nftEntitys;
   }
 
-  async getMintContract(): Promise<Contract> {
-    const privateKey = process.env.privateKey;
-    const chainId = process.env.chainId;
+  async findAllByOwnerAndIsVoted(
+    walletAddress: string,
+    isVoted: boolean,
+  ): Promise<NftEntity[]> {
+    const queryBuilder = this.nft
+      .createQueryBuilder('nft')
+      .where('nft.isVoted = :isVoted', { isVoted }) // 使用 :isVoted 来引用参数
+      .innerJoinAndSelect('nft.ownerWallet', 'wallet') // 连接 ownerWallet 关联
+      .andWhere('wallet.walletAddress = :walletAddress', { walletAddress });
+    return await queryBuilder.getMany();
+  }
+
+  async findOneByTokenId(tokenId: number) {
+    const entity = await this.nft.findOne({
+      where: {
+        tokenNumber: Like(tokenId),
+      },
+      relations: ['network', 'ownerWallet'],
+    });
+    if (!entity) {
+      throw new NotFoundException('The nft does not exist in database');
+    }
+    return entity;
+  }
+
+  async updateVotedState(tokenId: number, isVoted: boolean) {
+    const existNftEntity = await this.findOneByTokenId(tokenId);
+    this.nft.merge(existNftEntity, { isVoted: isVoted });
+    return await this.nft.save(existNftEntity);
+  }
+
+  async getMintContract(signer: Wallet): Promise<Contract> {
     const mintContractAddress = process.env.mintContractAddress;
-    const networkEntity = await this.networkService.findOne(+chainId);
-    const provider = new JsonRpcProvider(networkEntity.url);
-    const signer = new ethers.Wallet(privateKey, provider);
     return new ethers.Contract(mintContractAddress, ABI, signer);
   }
 }

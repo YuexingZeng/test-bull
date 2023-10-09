@@ -5,8 +5,6 @@ import { WalletService } from '../wallet/wallet.service';
 import { BalanceEntity } from '../entities/balance.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
-import { NetworkEntity } from '../entities/network.entity';
-import { WalletEntity } from '../entities/wallet.entity';
 import { ethers } from 'ethers';
 
 @Injectable()
@@ -14,10 +12,6 @@ export class BalanceService {
   constructor(
     @InjectRepository(BalanceEntity)
     private readonly balance: Repository<BalanceEntity>,
-    @InjectRepository(NetworkEntity)
-    private readonly network: Repository<NetworkEntity>,
-    @InjectRepository(WalletEntity)
-    private readonly wallet: Repository<WalletEntity>,
     private readonly networkService: NetworkService,
     private readonly walletService: WalletService,
   ) {}

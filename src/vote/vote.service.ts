@@ -1,29 +1,57 @@
 import { Injectable } from '@nestjs/common';
-import { Contract, ethers, JsonRpcProvider } from 'ethers';
+import { Contract, ethers, Wallet } from 'ethers';
 import { NetworkService } from '../network/network.service';
 import * as ABI from './contract/abi.json';
 import { VoteDto } from './dto/vote.dto';
+import { getTxReceipt } from '../utils/common';
+import { WalletService } from '../wallet/wallet.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { VoteRecordEntity } from '../entities/vote.entity';
+import { NftService } from '../nft/nft.service';
 
 @Injectable()
 export class VoteService {
-  constructor(private readonly networkService: NetworkService) {}
+  constructor(
+    @InjectRepository(VoteRecordEntity)
+    private readonly voteRecord: Repository<VoteRecordEntity>,
+    private readonly networkService: NetworkService,
+    private readonly walletService: WalletService,
+    private readonly nftService: NftService,
+  ) {}
 
   async vote(voteDto: VoteDto) {
-    const contractInstance = await this.getVoteContract();
-    return await contractInstance.vote(
+    const { provider, signer } =
+      await this.networkService.getProviderAndSigner();
+    const contractInstance = await this.getVoteContract(signer);
+    const txResult = await contractInstance.vote(
       voteDto.proposal,
       voteDto.votee,
       voteDto.tokens,
     );
+    const response = await getTxReceipt(provider, txResult.hash);
+    for (const tokenId of voteDto.tokens) {
+      await this.nftService.updateVotedState(tokenId, true);
+    }
+    const networkEntity = await this.networkService.findOne(
+      +process.env.chainId,
+    );
+    const walletEntity = await this.walletService.findOneByAddress(
+      signer.address,
+    );
+    const voteRecordEntity = new VoteRecordEntity();
+    voteRecordEntity.votee = voteDto.votee;
+    voteRecordEntity.count = voteDto.tokens.length;
+    voteRecordEntity.jobId = voteDto.jobId;
+    voteRecordEntity.transactionHash = response.hash;
+    voteRecordEntity.proposalId = voteDto.proposal;
+    voteRecordEntity.network = networkEntity;
+    voteRecordEntity.wallet = walletEntity;
+    return await this.voteRecord.save(voteRecordEntity);
   }
 
-  async getVoteContract(): Promise<Contract> {
-    const privateKey = process.env.privateKey;
-    const chainId = process.env.chainId;
+  async getVoteContract(signer: Wallet): Promise<Contract> {
     const voteContractAddress = process.env.voteContractAddress;
-    const networkEntity = await this.networkService.findOne(+chainId);
-    const provider = new JsonRpcProvider(networkEntity.url);
-    const signer = new ethers.Wallet(privateKey, provider);
     return new ethers.Contract(voteContractAddress, ABI, signer);
   }
 }

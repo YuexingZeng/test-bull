@@ -34,6 +34,6 @@ export class WalletEntity extends BaseEntity {
   @OneToMany(() => WalletEntity, (walletEntity) => walletEntity.parentWallet)
   subWallets: WalletEntity[];
 
-  @OneToMany(() => VoteRecordEntity, (voteRecord) => voteRecord.network)
+  @OneToMany(() => VoteRecordEntity, (voteRecord) => voteRecord.wallet)
   voteRecords: VoteRecordEntity[];
 }

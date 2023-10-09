@@ -4,6 +4,7 @@ import { UpdateNetworkDto } from './dto/update-network.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NetworkEntity } from '../entities/network.entity';
 import { Like, Repository } from 'typeorm';
+import { ethers, JsonRpcProvider } from 'ethers';
 
 @Injectable()
 export class NetworkService {
@@ -49,5 +50,17 @@ export class NetworkService {
   async remove(id: number): Promise<void> {
     const existingNetwork = await this.findOne(id);
     await this.network.remove(existingNetwork);
+  }
+
+  async getProviderAndSigner() {
+    const privateKey = process.env.privateKey;
+    const chainId = process.env.chainId;
+    const networkEntity = await this.findOne(+chainId);
+    const provider = new JsonRpcProvider(networkEntity.url);
+    const signer = new ethers.Wallet(privateKey, provider);
+    return {
+      provider: provider,
+      signer: signer,
+    };
   }
 }

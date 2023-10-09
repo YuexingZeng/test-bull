@@ -56,7 +56,7 @@ export class WalletService {
     return await this.wallet.findAndCount({ relations: ['subWallets'] });
   }
 
-  async findOneByAddress(walletAddress: string): Promise<any> {
+  async findOneByAddress(walletAddress: string): Promise<WalletEntity> {
     const entity = await this.wallet.findOne({
       where: {
         walletAddress: Like(walletAddress),
@@ -75,7 +75,7 @@ export class WalletService {
     return entity;
   }
 
-  async remove(privateKey: string): Promise<any> {
+  async remove(privateKey: string): Promise<WalletEntity> {
     const wallet = new ethers.Wallet(privateKey);
     const address = wallet.address;
     const entity = await this.findOneByAddress(address);
