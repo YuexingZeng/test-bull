@@ -52,10 +52,8 @@ export class NetworkService {
     await this.network.remove(existingNetwork);
   }
 
-  async getProviderAndSigner() {
-    const privateKey = process.env.privateKey;
-    const chainId = process.env.chainId;
-    const networkEntity = await this.findOne(+chainId);
+  async getProviderAndSigner(privateKey: string, chainId: number) {
+    const networkEntity = await this.findOne(chainId);
     const provider = new JsonRpcProvider(networkEntity.url);
     const signer = new ethers.Wallet(privateKey, provider);
     return {

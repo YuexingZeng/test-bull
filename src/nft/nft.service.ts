@@ -21,8 +21,10 @@ export class NftService {
   ) {}
 
   async mint(mintNftDto: MintNftDto) {
-    const { provider, signer } =
-      await this.networkService.getProviderAndSigner();
+    const { provider, signer } = await this.networkService.getProviderAndSigner(
+      mintNftDto.privateKey,
+      mintNftDto.networkId,
+    );
     const contractInstance = await this.getMintContract(signer);
     const txResult = await contractInstance.mint(
       mintNftDto.dropId,

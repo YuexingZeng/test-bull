@@ -23,7 +23,7 @@ Content-Type: application/json
 
 {
   "networkId": 31337,
-  "walletAddress": "0x3907e7712c30891dCe021E8078ecd4376d986F98"
+  "walletAddress": "0x06043c6fc15FE8a68380e5899C5211970b560734"
 }
 
 ### UPDATE
@@ -35,11 +35,13 @@ POST http://localhost:4000/nft
 Content-Type: application/json
 
 {
-  "dropId": "0x075918893931a6ee4a33f3885b427f989a46160e",
+  "networkId": 31337,
+  "privateKey": "0x41ab6dcc0da73a9910d2477ceff955c9bf447cc1b39cc673055ad1d6a4f05988",
+  "dropId": "0x1252e0850046f1736134ea7ee172f48a21c824e8",
   "merkleQuantity": 50,
-  "quantity": 2,
+  "quantity": 10,
   "proof": [
-    "0x4158628a03676d0b7fabe27bcae45b56ae23f817ea293a8f4cfe62efacc38483"
+    "0x569b19c77eb0165916899ec573ad81519b591a1f5169d7f32d0c55815dde8d57"
   ]
 }
 
@@ -75,8 +77,13 @@ POST http://localhost:4000/queues/vote
 Content-Type: application/json
 
 {
+  "networkId": 31337,
   "current": 0,
-  "target": 1,
-  "proposalId": 2,
+  "privateKeys": [
+    "0xa3679728091163ae15498f9b7e2ad25414a789353e18c0535ef7327c1659f136",
+    "0x41ab6dcc0da73a9910d2477ceff955c9bf447cc1b39cc673055ad1d6a4f05988"
+  ],
+  "target": 8,
+  "proposalId": 1,
   "votee": 1
 }

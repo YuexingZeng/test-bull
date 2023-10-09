@@ -21,8 +21,10 @@ export class VoteService {
   ) {}
 
   async vote(voteDto: VoteDto) {
-    const { provider, signer } =
-      await this.networkService.getProviderAndSigner();
+    const { provider, signer } = await this.networkService.getProviderAndSigner(
+      voteDto.privateKey,
+      voteDto.networkId,
+    );
     const contractInstance = await this.getVoteContract(signer);
     const txResult = await contractInstance.vote(
       voteDto.proposal,
