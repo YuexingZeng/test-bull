@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { MintNftDto } from '../nft/dto/mint-nft.dto';
 import { VoteJobDto } from './dto/vote-job.dto';
+import { MintJobDto } from './dto/mint-job.dto';
 
 @Injectable()
 export class QueuesService {
@@ -11,8 +11,8 @@ export class QueuesService {
     @InjectQueue('voteQueue') private readonly voteQueue: Queue,
   ) {}
 
-  async mint(mintNftDto: MintNftDto) {
-    return await this.nftQueue.add('mint', mintNftDto);
+  async mint(mintJobDto: MintJobDto) {
+    return await this.nftQueue.add('mint', mintJobDto);
   }
 
   async vote(voteJobDto: VoteJobDto) {

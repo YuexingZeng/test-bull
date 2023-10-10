@@ -77,15 +77,13 @@ export function sliceTokensRandomly(tokens: Array<number>, needed: number) {
       const randomIndex = Math.floor(
         Math.random() * (maxTokens - randomCount + 1),
       );
-      const slicedTokens = tokens.splice(randomIndex, randomCount);
-      return slicedTokens;
+      return tokens.splice(randomIndex, randomCount);
     } else {
       return [];
     }
   } else if (needed > 0) {
     const randomIndex = Math.floor(Math.random() * (maxTokens - needed + 1));
-    const slicedTokens = tokens.splice(randomIndex, needed);
-    return slicedTokens;
+    return tokens.splice(randomIndex, needed);
   } else {
     return [];
   }
@@ -103,6 +101,5 @@ export function removeElementFromArray<T>(array: T[], elementToRemove: T): T[] {
 
 export async function getTransaction(rpc, txHash) {
   const provider = new ethers.JsonRpcProvider(rpc);
-  const receipt = await provider.getTransactionReceipt(txHash);
-  return receipt;
+  return await provider.getTransactionReceipt(txHash);
 }

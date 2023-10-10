@@ -100,6 +100,9 @@ export class voteQueueProcessor {
           delay: delay * 1000,
         },
       );
+    } else {
+      console.log('Voting has reached the expected quantity, task completed!');
+      console.log(`JobId: ${job.id}, Result: ${result}`);
     }
   }
 }
