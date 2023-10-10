@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBalanceDto } from './dto/create-balance.dto';
 import { NetworkService } from '../network/network.service';
 import { WalletService } from '../wallet/wallet.service';
 import { BalanceEntity } from '../entities/balance.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { ethers } from 'ethers';
+import { CreateOrUpdateBalanceDto } from './dto/create-or-update-balance.dto';
 
 @Injectable()
 export class BalanceService {
@@ -16,22 +16,33 @@ export class BalanceService {
     private readonly walletService: WalletService,
   ) {}
 
-  async create(createBalanceDto: CreateBalanceDto): Promise<BalanceEntity> {
+  async createOrUpdate(
+    createOrUpdateBalanceDto: CreateOrUpdateBalanceDto,
+  ): Promise<BalanceEntity> {
     const networkEntity = await this.networkService.findOne(
-      createBalanceDto.networkId,
+      createOrUpdateBalanceDto.networkId,
     );
     const walletEntity = await this.walletService.findOneByAddress(
-      createBalanceDto.walletAddress,
+      createOrUpdateBalanceDto.walletAddress,
     );
     const provider = new ethers.JsonRpcProvider(networkEntity.url);
     const balanceEther = ethers.formatEther(
       await provider.getBalance(walletEntity.walletAddress),
     );
-    const balanceEntity = new BalanceEntity();
-    balanceEntity.wallet = walletEntity;
-    balanceEntity.network = networkEntity;
-    balanceEntity.balance = +balanceEther;
-    return await this.balance.save(balanceEntity);
+    if (!(await this.ifExists(networkEntity.id, walletEntity.walletAddress))) {
+      const balanceEntity = new BalanceEntity();
+      balanceEntity.wallet = walletEntity;
+      balanceEntity.network = networkEntity;
+      balanceEntity.balance = +balanceEther;
+      return await this.balance.save(balanceEntity);
+    } else {
+      const existingBalance = await this.findOneBy(
+        networkEntity.id,
+        walletEntity.walletAddress,
+      );
+      this.balance.merge(existingBalance, { balance: +balanceEther });
+      return await this.balance.save(existingBalance);
+    }
   }
 
   async findAll(): Promise<any> {
@@ -45,6 +56,26 @@ export class BalanceService {
       },
       relations: ['network', 'wallet'],
     });
+  }
+
+  async findOneBy(networkId: number, walletAddress: string) {
+    const queryBuilder = this.balance
+      .createQueryBuilder('balance')
+      .innerJoinAndSelect('balance.network', 'network') // 连接 ownerWallet 关联
+      .innerJoinAndSelect('balance.wallet', 'wallet')
+      .where('network.id = :networkId', { networkId })
+      .andWhere('wallet.walletAddress = :walletAddress', { walletAddress });
+    return await queryBuilder.getOne();
+  }
+
+  async ifExists(networkId: number, walletAddress: string): Promise<boolean> {
+    const queryBuilder = this.balance
+      .createQueryBuilder('balance')
+      .innerJoinAndSelect('balance.network', 'network') // 连接 ownerWallet 关联
+      .innerJoinAndSelect('balance.wallet', 'wallet')
+      .where('network.id = :networkId', { networkId })
+      .andWhere('wallet.walletAddress = :walletAddress', { walletAddress });
+    return await queryBuilder.getExists();
   }
 
   async update(id: number): Promise<BalanceEntity> {

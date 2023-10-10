@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateBalanceDto } from './create-balance.dto';
+import { CreateOrUpdateBalanceDto } from './create-or-update-balance.dto';
 
-export class UpdateBalanceDto extends PartialType(CreateBalanceDto) {}
+export class UpdateBalanceDto extends PartialType(CreateOrUpdateBalanceDto) {}

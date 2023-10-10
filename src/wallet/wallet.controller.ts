@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
+import { ImportWalletDto } from './dto/import-wallet.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('wallet')
 @Controller('wallet')
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
@@ -9,6 +12,14 @@ export class WalletController {
   @Post('create')
   async create(@Body() createWalletDto: CreateWalletDto): Promise<any> {
     return await this.walletService.create(createWalletDto);
+  }
+
+  @Post('import')
+  async importWalletsByMnemonic(@Body() importWalletDto: ImportWalletDto) {
+    return await this.walletService.importAndSaveWallet(
+      importWalletDto.mnemonic,
+      importWalletDto.childWalletAmount,
+    );
   }
 
   @Get()

@@ -15,41 +15,56 @@ export class WalletService {
   async create(createWalletDto: CreateWalletDto): Promise<any> {
     const groupNumber = createWalletDto.groupNumber;
     const childWalletAmount = createWalletDto.childWalletAmount;
-    const createdWalletRecords: string[] = [];
+    const createdWalletRecords = [];
     for (let i = 0; i < groupNumber; i++) {
       const hdNode = ethers.HDNodeWallet.createRandom();
-      const groupParentWallet = hdNode;
-      const parentWallet = new WalletEntity();
+      const groupWallets = await this.importAndSaveWallet(
+        hdNode.mnemonic.phrase,
+        childWalletAmount,
+      );
+      createdWalletRecords.push({
+        groupCounter: i,
+        parent: groupWallets.parent,
+        children: groupWallets.children,
+      });
+    }
+    return createdWalletRecords;
+  }
+
+  async importAndSaveWallet(mnemonic: string, childWalletAmount: number) {
+    const hdNode = ethers.Wallet.fromPhrase(mnemonic);
+    const groupParentWallet = hdNode;
+    const ifExists = await this.ifExists(groupParentWallet.address);
+    let parentWallet: WalletEntity;
+    if (ifExists) {
+      parentWallet = await this.findOneByAddress(groupParentWallet.address);
+    } else {
+      parentWallet = new WalletEntity();
       parentWallet.walletAddress = groupParentWallet.address;
-      const childWalletList = [];
-      const groupChildWallets = [];
-      for (let j = 0; j < childWalletAmount; j++) {
-        const childWallet = hdNode.derivePath(`m/44'/60'/0'/0/${j}`);
-        groupChildWallets.push({
-          index: j,
-          privateKey: childWallet.privateKey,
-          address: childWallet.address,
-        });
+    }
+    const groupChildWallets = [];
+    for (let j = 0; j < childWalletAmount; j++) {
+      const childWallet = hdNode.derivePath(`m/44'/60'/0'/0/${j}`);
+      groupChildWallets.push({
+        index: j,
+        privateKey: childWallet.privateKey,
+        address: childWallet.address,
+      });
+      if (!(await this.ifExists(childWallet.address))) {
         const child = new WalletEntity();
         child.walletAddress = childWallet.address;
         child.parentWallet = parentWallet;
         await this.wallet.save(child);
-        childWalletList.push(child);
       }
-      const fileContent = JSON.stringify({
-        groupCounter: i,
-        parent: {
-          mnemonic: groupParentWallet.mnemonic.phrase,
-          privateKey: groupParentWallet.privateKey,
-          address: groupParentWallet.address,
-        },
-        children: groupChildWallets,
-      });
-      createdWalletRecords.push(fileContent);
-      parentWallet.subWallets = childWalletList;
-      await this.wallet.save(parentWallet);
     }
-    return createdWalletRecords;
+    return {
+      parent: {
+        mnemonic: groupParentWallet.mnemonic.phrase,
+        privateKey: groupParentWallet.privateKey,
+        address: groupParentWallet.address,
+      },
+      children: groupChildWallets,
+    };
   }
 
   async findAll(): Promise<any> {
@@ -73,6 +88,21 @@ export class WalletService {
       throw new NotFoundException('Account does not exist in database');
     }
     return entity;
+  }
+
+  async ifExists(walletAddress: string): Promise<boolean> {
+    return await this.wallet.exist({
+      where: {
+        walletAddress: Like(walletAddress),
+      },
+      relations: [
+        'subWallets',
+        'balances',
+        'nfts',
+        'parentWallet',
+        'voteRecords',
+      ],
+    });
   }
 
   async remove(privateKey: string): Promise<WalletEntity> {

@@ -18,6 +18,15 @@ Content-Type: application/json
 }
 
 ### Send POST request with json body
+POST http://localhost:4000/wallet/import
+Content-Type: application/json
+
+{
+  "mnemonic": "glare patient beach layer design visit advice afford forest hurdle similar account",
+  "childWalletAmount": 2
+}
+
+### Send POST request with json body
 POST http://localhost:4000/balance
 Content-Type: application/json
 
@@ -50,7 +59,7 @@ Content-Type: application/json
 GET http://localhost:4000/network/31337
 
 ### GET ONE
-GET http://localhost:4000/wallet/0x3907e7712c30891dCe021E8078ecd4376d986F98
+GET http://localhost:4000/wallet/0x95926a5B8cbA6Df6db572fce9752e02D4E6D9fC3
 
 ### VOTE
 POST http://localhost:4000/vote

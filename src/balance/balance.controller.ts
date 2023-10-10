@@ -8,15 +8,19 @@ import {
   Delete,
 } from '@nestjs/common';
 import { BalanceService } from './balance.service';
-import { CreateBalanceDto } from './dto/create-balance.dto';
+import { CreateOrUpdateBalanceDto } from './dto/create-or-update-balance.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('balance')
 @Controller('balance')
 export class BalanceController {
   constructor(private readonly balanceService: BalanceService) {}
 
-  @Post()
-  async create(@Body() createBalanceDto: CreateBalanceDto): Promise<any> {
-    return await this.balanceService.create(createBalanceDto);
+  @Post('createOrUpdate')
+  async createOrUpdate(
+    @Body() createOrUpdateBalanceDto: CreateOrUpdateBalanceDto,
+  ): Promise<any> {
+    return await this.balanceService.createOrUpdate(createOrUpdateBalanceDto);
   }
 
   @Get()

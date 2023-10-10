@@ -10,7 +10,9 @@ import {
 import { NetworkService } from './network.service';
 import { CreateNetworkDto } from './dto/create-network.dto';
 import { UpdateNetworkDto } from './dto/update-network.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('network')
 @Controller('network')
 export class NetworkController {
   constructor(private readonly networkService: NetworkService) {}
