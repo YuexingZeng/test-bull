@@ -1,4 +1,4 @@
-import { ethers, JsonRpcProvider, TransactionReceipt, ZeroHash } from 'ethers';
+import { ethers, JsonRpcProvider, TransactionReceipt, Wallet, ZeroHash } from "ethers";
 import * as fs from 'fs';
 import { WHITE_LIST_CSV, WHITE_LIST_PROOF } from './constants';
 
@@ -102,4 +102,19 @@ export function removeElementFromArray<T>(array: T[], elementToRemove: T): T[] {
 export async function getTransaction(rpc, txHash) {
   const provider = new ethers.JsonRpcProvider(rpc);
   return await provider.getTransactionReceipt(txHash);
+}
+
+export async function transferETH(
+  provider: JsonRpcProvider,
+  signer: Wallet,
+  recipientAddress: string,
+  amount: string,
+) {
+  const transaction = {
+    to: recipientAddress,
+    value: ethers.parseEther(amount),
+  };
+  const transactionResponse = await signer.sendTransaction(transaction);
+  const receipt = await provider.waitForTransaction(transactionResponse.hash);
+  return receipt;
 }

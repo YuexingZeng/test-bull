@@ -5,6 +5,9 @@ export class VoteDto {
   networkId: number;
 
   @IsString()
+  voteContractAddress: string;
+
+  @IsString()
   privateKey: string;
 
   @IsNumber()

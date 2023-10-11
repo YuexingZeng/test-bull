@@ -5,7 +5,13 @@ export class MintNftDto {
   networkId: number;
 
   @IsString()
+  mintContractAddress: string;
+
+  @IsString()
   privateKey: string;
+
+  @IsString()
+  tokenName: string;
 
   @IsNumber()
   dropId: number;

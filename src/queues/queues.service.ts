@@ -3,12 +3,14 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { VoteJobDto } from './dto/vote-job.dto';
 import { MintJobDto } from './dto/mint-job.dto';
+import { UpdateBalanceJobDto } from './dto/update-balance-job.dto';
 
 @Injectable()
 export class QueuesService {
   constructor(
     @InjectQueue('nftQueue') private readonly nftQueue: Queue,
     @InjectQueue('voteQueue') private readonly voteQueue: Queue,
+    @InjectQueue('balanceQueue') private readonly balanceQueue: Queue,
   ) {}
 
   async mint(mintJobDto: MintJobDto) {
@@ -17,5 +19,9 @@ export class QueuesService {
 
   async vote(voteJobDto: VoteJobDto) {
     return await this.voteQueue.add('vote', voteJobDto);
+  }
+
+  async updateBalance(updateBalanceJobDto: UpdateBalanceJobDto) {
+    return await this.balanceQueue.add('updateBalance', updateBalanceJobDto);
   }
 }

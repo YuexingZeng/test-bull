@@ -3,13 +3,11 @@ import { MintNftDto } from './dto/mint-nft.dto';
 import { Contract, ethers, Wallet } from 'ethers';
 import * as ABI from './contract/abi.json';
 import { NetworkService } from '../network/network.service';
-import * as dotenv from 'dotenv';
 import { WalletService } from '../wallet/wallet.service';
 import { getTokensFromTx, getTxReceipt } from '../utils/common';
 import { NftEntity } from '../entities/nft.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
-dotenv.config();
 
 @Injectable()
 export class NftService {
@@ -25,7 +23,10 @@ export class NftService {
       mintNftDto.privateKey,
       mintNftDto.networkId,
     );
-    const contractInstance = await this.getMintContract(signer);
+    const contractInstance = await this.getMintContract(
+      mintNftDto.mintContractAddress,
+      signer,
+    );
     const txResult = await contractInstance.mint(
       mintNftDto.dropId,
       mintNftDto.merkleQuantity,
@@ -40,10 +41,10 @@ export class NftService {
         signer.address,
       );
       const networkEntity = await this.networkService.findOne(
-        +process.env.chainId,
+        mintNftDto.networkId,
       );
       const nftEntity = new NftEntity();
-      nftEntity.name = process.env.tokenName;
+      nftEntity.name = mintNftDto.tokenName;
       nftEntity.tokenNumber = token;
       nftEntity.ownerWallet = walletEntity;
       nftEntity.network = networkEntity;
@@ -83,8 +84,10 @@ export class NftService {
     return await this.nft.save(existNftEntity);
   }
 
-  async getMintContract(signer: Wallet): Promise<Contract> {
-    const mintContractAddress = process.env.mintContractAddress;
+  async getMintContract(
+    mintContractAddress: string,
+    signer: Wallet,
+  ): Promise<Contract> {
     return new ethers.Contract(mintContractAddress, ABI, signer);
   }
 }

@@ -1,4 +1,4 @@
-import { IsArray, IsNumber } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
 
 export class MintJobDto {
   @IsNumber()
@@ -6,6 +6,12 @@ export class MintJobDto {
 
   @IsArray()
   privateKeys: Array<string>;
+
+  @IsString()
+  tokenName: string;
+
+  @IsString()
+  mintContractAddress: string;
 
   @IsNumber()
   mintAmountPerAccount: number;

@@ -25,7 +25,10 @@ export class VoteService {
       voteDto.privateKey,
       voteDto.networkId,
     );
-    const contractInstance = await this.getVoteContract(signer);
+    const contractInstance = await this.getVoteContract(
+      voteDto.voteContractAddress,
+      signer,
+    );
     const txResult = await contractInstance.vote(
       voteDto.proposal,
       voteDto.votee,
@@ -35,9 +38,7 @@ export class VoteService {
     for (const tokenId of voteDto.tokens) {
       await this.nftService.updateVotedState(tokenId, true);
     }
-    const networkEntity = await this.networkService.findOne(
-      +process.env.chainId,
-    );
+    const networkEntity = await this.networkService.findOne(voteDto.networkId);
     const walletEntity = await this.walletService.findOneByAddress(
       signer.address,
     );
@@ -52,8 +53,10 @@ export class VoteService {
     return await this.voteRecord.save(voteRecordEntity);
   }
 
-  async getVoteContract(signer: Wallet): Promise<Contract> {
-    const voteContractAddress = process.env.voteContractAddress;
+  async getVoteContract(
+    voteContractAddress: string,
+    signer: Wallet,
+  ): Promise<Contract> {
     return new ethers.Contract(voteContractAddress, ABI, signer);
   }
 }

@@ -1,8 +1,11 @@
-import { IsArray, IsNumber } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
 
 export class VoteJobDto {
   @IsNumber()
   networkId: number;
+
+  @IsString()
+  voteContractAddress: string;
 
   @IsNumber()
   current: number;

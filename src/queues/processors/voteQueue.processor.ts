@@ -8,7 +8,6 @@ import { Job, Queue } from 'bull';
 import { VoteService } from '../../vote/vote.service';
 import { NftService } from '../../nft/nft.service';
 import { ethers } from 'ethers';
-import * as dotenv from 'dotenv';
 import { VoteDto } from '../../vote/dto/vote.dto';
 import {
   getRandomPrivateKey,
@@ -17,7 +16,8 @@ import {
   sliceTokensRandomly,
 } from '../../utils/common';
 import { VoteJobDto } from '../dto/vote-job.dto';
-dotenv.config();
+import { QueuesService } from '../queues.service';
+import { UpdateBalanceJobDto } from '../dto/update-balance-job.dto';
 
 @Processor('voteQueue')
 export class voteQueueProcessor {
@@ -25,6 +25,7 @@ export class voteQueueProcessor {
     @InjectQueue('voteQueue') private readonly voteQueue: Queue,
     private readonly voteService: VoteService,
     private readonly nftService: NftService,
+    private readonly queuesService: QueuesService,
   ) {}
   @Process('vote')
   async handleVote(job: Job) {
@@ -49,12 +50,17 @@ export class voteQueueProcessor {
     const voteTokens = sliceTokensRandomly(canVoteTokenIds, needed);
     await this.voteService.vote({
       networkId: job.data.networkId,
+      voteContractAddress: job.data.voteContractAddress,
       privateKey: privateKey,
       jobId: job.id,
       proposal: job.data.proposalId,
       votee: job.data.votee,
       tokens: voteTokens,
     } as VoteDto);
+    await this.queuesService.updateBalance({
+      networkId: job.data.networkId,
+      walletAddress: address,
+    } as UpdateBalanceJobDto);
     return {
       privateKey: privateKey,
       current: job.data.current + voteTokens.length,
@@ -87,6 +93,7 @@ export class voteQueueProcessor {
         'vote',
         {
           networkId: job.data.networkId,
+          voteContractAddress: job.data.voteContractAddress,
           current: result.current,
           privateKeys: removeElementFromArray(
             job.data.privateKeys,

@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { MyQueueModule } from './my-queue/my-queue.module';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -19,7 +18,6 @@ dotenv.config();
 
 @Module({
   imports: [
-    MyQueueModule,
     BullBoardModule.forRoot({
       route: '/queues',
       adapter: ExpressAdapter,

@@ -1,0 +1,12 @@
+### Send POST request with json body
+POST http://localhost:4000/init
+Content-Type: application/json
+
+{
+  "networkId": 31337,
+  "networkName": "localhost",
+  "networkProviderUrl": "http://127.0.0.1:8545/",
+  "mnemonic": "test test test test test test test test test test test junk",
+  "childWalletAmount": 20,
+  "TransferAmount": 10
+}

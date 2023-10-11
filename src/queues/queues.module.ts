@@ -17,6 +17,8 @@ import { nftQueueProcessor } from './processors/nftQueue.processor';
 import { NftModule } from '../nft/nft.module';
 import { VoteModule } from '../vote/vote.module';
 import { voteQueueProcessor } from './processors/voteQueue.processor';
+import { BalanceModule } from '../balance/balance.module';
+import { balanceQueueProcessor } from './processors/updateBalanceQueue.processor';
 
 @Module({
   imports: [
@@ -27,6 +29,9 @@ import { voteQueueProcessor } from './processors/voteQueue.processor';
       {
         name: 'voteQueue',
       },
+      {
+        name: 'balanceQueue',
+      },
     ),
     BullBoardModule.forFeature(
       {
@@ -35,6 +40,10 @@ import { voteQueueProcessor } from './processors/voteQueue.processor';
       },
       {
         name: 'voteQueue',
+        adapter: BullAdapter,
+      },
+      {
+        name: 'balanceQueue',
         adapter: BullAdapter,
       },
     ),
@@ -47,11 +56,17 @@ import { voteQueueProcessor } from './processors/voteQueue.processor';
       VoteRecordEntity,
     ]),
     WalletModule,
+    BalanceModule,
     NetworkModule,
     NftModule,
     VoteModule,
   ],
   controllers: [QueuesController],
-  providers: [QueuesService, nftQueueProcessor, voteQueueProcessor],
+  providers: [
+    QueuesService,
+    nftQueueProcessor,
+    voteQueueProcessor,
+    balanceQueueProcessor,
+  ],
 })
 export class QueuesModule {}
