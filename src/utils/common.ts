@@ -5,6 +5,7 @@ import {
   Wallet,
   ZeroHash,
 } from 'ethers';
+import * as os from 'os';
 
 export function getTokensFromTx(tx: TransactionReceipt) {
   const topics = tx.logs[0].topics;
@@ -21,7 +22,7 @@ export function getTokensFromTx(tx: TransactionReceipt) {
 
 export async function checkAddressInWhiteList(data, address) {
   try {
-    const lines = data.split('\r\n');
+    const lines = data.split(os.EOL);
     const matchingLine = lines.find((line) => line.includes(address));
     if (matchingLine) {
       return { found: true, amount: parseInt(matchingLine.split(',').pop()) };

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { VoteJobDto } from './dto/vote-job.dto';
-import { MintJobDto } from './dto/mint-job.dto';
 import { UpdateBalanceJobDto } from './dto/update-balance-job.dto';
 
 @Injectable()
@@ -13,8 +12,8 @@ export class QueuesService {
     @InjectQueue('balanceQueue') private readonly balanceQueue: Queue,
   ) {}
 
-  async mint(csvData: string, proofData: string, mintJobDto: MintJobDto) {
-    console.log(mintJobDto.privateKeys);
+  async mint(csvData: string, proofData: string, mintJob: string) {
+    const mintJobDto = JSON.parse(mintJob);
     return await this.nftQueue.add('mint', {
       lists: csvData,
       proofs: proofData,

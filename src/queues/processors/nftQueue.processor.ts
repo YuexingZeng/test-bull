@@ -21,40 +21,31 @@ export class nftQueueProcessor {
     for (const privateKey of job.data.privateKeys) {
       const wallet = new ethers.Wallet(privateKey);
       const address = wallet.address;
-      console.log(wallet);
       const { found, amount } = await checkAddressInWhiteList(
         job.data.lists,
         address,
       );
-      console.log(amount);
       if (found) {
         const proof = await getMerkleProof(job.data.proofs, address);
-        console.log(proof);
-        this.nftService
-          .mint({
-            networkId: job.data.networkId,
-            mintContractAddress: job.data.mintContractAddress,
-            privateKey: privateKey,
-            tokenName: job.data.tokenName,
-            dropId: job.data.dropId,
-            merkleQuantity: amount,
-            quantity: job.data.mintAmountPerAccount,
-            proof: proof,
-          } as MintNftDto)
-          .then((result) => {
-            this.queuesService.updateBalance({
-              networkId: job.data.networkId,
-              walletAddress: address,
-            } as UpdateBalanceJobDto);
-            handleResult.push({
-              networkId: job.data.networkId,
-              account: address,
-              mintAmount: result.length,
-            });
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-          });
+        const nftEntities = await this.nftService.mint({
+          networkId: job.data.networkId,
+          mintContractAddress: job.data.mintContractAddress,
+          privateKey: privateKey,
+          tokenName: job.data.tokenName,
+          dropId: job.data.dropId,
+          merkleQuantity: amount,
+          quantity: job.data.mintAmountPerAccount,
+          proof: proof,
+        } as MintNftDto);
+        await this.queuesService.updateBalance({
+          networkId: job.data.networkId,
+          walletAddress: address,
+        } as UpdateBalanceJobDto);
+        handleResult.push({
+          networkId: job.data.networkId,
+          account: address,
+          mintAmount: nftEntities.length,
+        });
       }
     }
     return handleResult;

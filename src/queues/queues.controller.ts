@@ -7,8 +7,7 @@ import {
 } from '@nestjs/common';
 import { QueuesService } from './queues.service';
 import { VoteJobDto } from './dto/vote-job.dto';
-import { MintJobDto } from './dto/mint-job.dto';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('queues')
@@ -23,13 +22,34 @@ export class QueuesController {
       // 👈  multiple files with different field names
       { name: 'lists', maxCount: 1 },
       { name: 'proofs', maxCount: 1 },
+      { name: 'mintJob', maxCount: 1 },
     ]),
   )
-  async mint(@UploadedFiles() files, @Body() mintJobDto: MintJobDto) {
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        // 👈  field names need to be repeated for swagger
+        lists: {
+          type: 'string',
+          format: 'binary',
+        },
+        proofs: {
+          type: 'string',
+          format: 'binary',
+        },
+        mintJob: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async mint(@UploadedFiles() files) {
     return await this.queuesService.mint(
       files.lists[0].buffer.toString(),
       files.proofs[0].buffer.toString(),
-      mintJobDto,
+      files.mintJob[0].buffer.toString(),
     );
   }
 
