@@ -13,8 +13,8 @@ export class MintNftDto {
   @IsString()
   tokenName: string;
 
-  @IsNumber()
-  dropId: number;
+  @IsString()
+  dropId: string;
 
   @IsNumber()
   merkleQuantity: number;

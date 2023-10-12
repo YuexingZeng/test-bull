@@ -15,7 +15,7 @@ export class InitService {
     private readonly balanceService: BalanceService,
   ) {}
   async init(initDto: InitDto) {
-    await this.networkService.create({
+    const networkEntity = await this.networkService.create({
       id: initDto.networkId,
       name: initDto.networkName,
       url: initDto.networkProviderUrl,
@@ -47,5 +47,9 @@ export class InitService {
         walletAddress: child.address,
       } as CreateOrUpdateBalanceDto);
     }
+    return {
+      networkInfo: networkEntity,
+      walletInfo: groupWallets,
+    };
   }
 }

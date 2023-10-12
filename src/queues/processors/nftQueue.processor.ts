@@ -21,9 +21,15 @@ export class nftQueueProcessor {
     for (const privateKey of job.data.privateKeys) {
       const wallet = new ethers.Wallet(privateKey);
       const address = wallet.address;
-      const { found, amount } = await checkAddressInWhiteList(address);
+      console.log(wallet);
+      const { found, amount } = await checkAddressInWhiteList(
+        job.data.lists,
+        address,
+      );
+      console.log(amount);
       if (found) {
-        const proof = await getMerkleProof(address);
+        const proof = await getMerkleProof(job.data.proofs, address);
+        console.log(proof);
         this.nftService
           .mint({
             networkId: job.data.networkId,

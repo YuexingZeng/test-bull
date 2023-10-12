@@ -13,8 +13,18 @@ export class QueuesService {
     @InjectQueue('balanceQueue') private readonly balanceQueue: Queue,
   ) {}
 
-  async mint(mintJobDto: MintJobDto) {
-    return await this.nftQueue.add('mint', mintJobDto);
+  async mint(csvData: string, proofData: string, mintJobDto: MintJobDto) {
+    console.log(mintJobDto.privateKeys);
+    return await this.nftQueue.add('mint', {
+      lists: csvData,
+      proofs: proofData,
+      networkId: mintJobDto.networkId,
+      privateKeys: mintJobDto.privateKeys,
+      tokenName: mintJobDto.tokenName,
+      mintContractAddress: mintJobDto.mintContractAddress,
+      mintAmountPerAccount: mintJobDto.mintAmountPerAccount,
+      dropId: mintJobDto.dropId,
+    });
   }
 
   async vote(voteJobDto: VoteJobDto) {

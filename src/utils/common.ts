@@ -1,6 +1,10 @@
-import { ethers, JsonRpcProvider, TransactionReceipt, Wallet, ZeroHash } from "ethers";
-import * as fs from 'fs';
-import { WHITE_LIST_CSV, WHITE_LIST_PROOF } from './constants';
+import {
+  ethers,
+  JsonRpcProvider,
+  TransactionReceipt,
+  Wallet,
+  ZeroHash,
+} from 'ethers';
 
 export function getTokensFromTx(tx: TransactionReceipt) {
   const topics = tx.logs[0].topics;
@@ -15,10 +19,9 @@ export function getTokensFromTx(tx: TransactionReceipt) {
   return tokens;
 }
 
-export async function checkAddressInWhiteList(address) {
+export async function checkAddressInWhiteList(data, address) {
   try {
-    const data = await fs.promises.readFile(WHITE_LIST_CSV, 'utf8');
-    const lines = data.split('\n');
+    const lines = data.split('\r\n');
     const matchingLine = lines.find((line) => line.includes(address));
     if (matchingLine) {
       return { found: true, amount: parseInt(matchingLine.split(',').pop()) };
@@ -31,9 +34,8 @@ export async function checkAddressInWhiteList(address) {
   }
 }
 
-export async function getMerkleProof(address) {
+export async function getMerkleProof(data, address) {
   try {
-    const data = await fs.promises.readFile(WHITE_LIST_PROOF, 'utf8');
     const jsonData = JSON.parse(data);
     const result = jsonData.find((item) => item.addr === address);
     if (result) {
